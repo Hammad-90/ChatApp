@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ChatApp</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2300a884'/%3E%3Cpath fill='white' d='M18 5H6c-.6 0-1 .4-1 1v13l3-3h10c.6 0 1-.4 1-1V6c0-.6-.4-1-1-1z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ Login / Register ============ -->
+  <div id="auth" class="auth">
+    <div class="auth-top"></div>
+    <form id="authForm" class="auth-card">
+      <div class="auth-logo"><i data-icon="chat"></i></div>
+      <h1>ChatApp</h1>
+      <p class="muted">Send and receive messages in real time.</p>
+      <input id="username" placeholder="Username" autocomplete="username" required>
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" required>
+      <div id="authError" class="error"></div>
+      <button type="submit" class="btn primary">Log in</button>
+      <button type="button" id="registerBtn" class="btn ghost">Create new account</button>
+      <small class="muted center">New accounts start with demo contacts you can chat and call.</small>
+    </form>
+  </div>
+
+  <!-- ============ Main app ============ -->
+  <div id="app" class="app hidden">
+
+    <nav class="rail">
+      <div class="rail-top">
+        <button class="rail-btn active" data-tab="chats" title="Chats"><i data-icon="chat"></i><span id="railBadge" class="rail-badge hidden"></span></button>
+        <button class="rail-btn" data-tab="calls" title="Calls"><i data-icon="phone"></i></button>
+        <button class="rail-btn" data-tab="status" title="Status"><i data-icon="status"></i></button>
+      </div>
+      <div class="rail-bottom">
+        <button class="rail-btn" id="themeBtn" title="Toggle dark mode">🌙</button>
+        <button class="rail-btn" id="profileBtn" title="Profile"><div class="avatar sm" id="meAvatar"></div></button>
+      </div>
+    </nav>
+
+    <aside class="side" id="side">
+      <header class="side-head">
+        <h2 id="sideTitle">Chats</h2>
+        <div class="head-actions">
+          <button class="icon-btn" id="newChatBtn" title="New chat"><i data-icon="plus"></i></button>
+          <button class="icon-btn" id="menuBtn" title="Menu"><i data-icon="more"></i></button>
+        </div>
+      </header>
+      <div class="search-wrap">
+        <div class="search"><i data-icon="search"></i><input id="search" placeholder="Search or start a new chat" autocomplete="off"></div>
+      </div>
+      <div class="filters" id="filters">
+        <button class="chip active" data-f="all">All</button>
+        <button class="chip" data-f="unread">Unread</button>
+        <button class="chip" data-f="groups">Groups</button>
+      </div>
+      <div class="side-body" id="sideBody"></div>
+    </aside>
+
+    <main class="conv" id="conv">
+      <div class="empty" id="empty">
+        <div class="empty-icon"><i data-icon="chat"></i></div>
+        <h2>ChatApp</h2>
+        <p class="muted">Select a chat to start messaging.<br>Chat, send files and voice notes, and make voice or video calls.</p>
+      </div>
+
+      <section class="chat hidden" id="chat">
+        <header class="chat-head">
+          <button class="icon-btn back" id="backBtn"><i data-icon="back"></i></button>
+          <div class="head-info" id="headInfo">
+            <div id="peerAvatar"></div>
+            <div class="head-text">
+              <strong id="peerName"></strong>
+              <small id="peerStatus" class="muted"></small>
+            </div>
+          </div>
+          <div class="head-actions">
+            <button class="icon-btn" id="videoCallBtn" title="Video call"><i data-icon="video"></i></button>
+            <button class="icon-btn" id="voiceCallBtn" title="Voice call"><i data-icon="phone"></i></button>
+            <button class="icon-btn" id="chatMenuBtn" title="Menu"><i data-icon="more"></i></button>
+          </div>
+        </header>
+
+        <div class="messages" id="messages"></div>
+
+        <footer class="composer-wrap">
+          <div id="replyBar" class="reply-bar hidden"></div>
+          <div id="emojiPanel" class="emoji-panel hidden"></div>
+          <div class="composer" id="composer">
+            <button class="icon-btn" id="emojiBtn" title="Emoji"><i data-icon="emoji"></i></button>
+            <button class="icon-btn" id="attachBtn" title="Attach"><i data-icon="attach"></i></button>
+            <textarea id="text" rows="1" placeholder="Type a message"></textarea>
+            <button class="icon-btn" id="micBtn" title="Voice message"><i data-icon="mic"></i></button>
+            <button class="icon-btn send hidden" id="sendBtn" title="Send"><i data-icon="send"></i></button>
+          </div>
+          <div class="composer recording hidden" id="recBar">
+            <button class="icon-btn danger" id="recCancel" title="Cancel"><i data-icon="trash"></i></button>
+            <span class="rec-dot"></span><span id="recTime">0:00</span>
+            <span class="grow"></span>
+            <button class="icon-btn send" id="recSend" title="Send"><i data-icon="send"></i></button>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <input type="file" id="fileDoc" class="hidden">
+  <input type="file" id="fileMedia" accept="image/*,video/*" class="hidden">
+
+  <!-- ============ Overlays ============ -->
+  <div id="modal" class="modal hidden"><div class="modal-card" id="modalCard"></div></div>
+  <div id="popup" class="popup hidden"></div>
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- incoming call -->
+  <div id="inUI" class="incoming hidden">
+    <div id="inAvatar"></div>
+    <div class="in-text"><strong id="inName"></strong><small id="inKind"></small></div>
+    <button class="round red" id="btnDecline" title="Decline"><i data-icon="phone" class="hang"></i></button>
+    <button class="round green" id="btnAccept" title="Accept"><i data-icon="phone"></i></button>
+  </div>
+
+  <!-- active call -->
+  <div id="callUI" class="call hidden">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <div class="call-center">
+      <div id="callAvatar"></div>
+      <h2 id="callName"></h2>
+      <p id="callState"></p>
+    </div>
+    <video id="localVideo" class="pip hidden" autoplay playsinline muted></video>
+    <div class="call-controls">
+      <button class="round gray" id="btnMute" title="Mute">🎤</button>
+      <button class="round gray hidden" id="btnCam" title="Camera">📷</button>
+      <button class="round red" id="btnEnd" title="End call"><i data-icon="phone" class="hang"></i></button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
